@@ -21,7 +21,7 @@ namespace fusionCacheApi.Repository
 
         public Task<List<PortDetails>?> GetPorts(bool throwEx)
         {
-            return Task.FromResult(JsonSerializer.Deserialize<List<PortDetails>>(File.ReadAllText($"{Path.DirectorySeparatorChar}Repository{Path.DirectorySeparatorChar}ports.json")));
+            return Task.FromResult(JsonSerializer.Deserialize<List<PortDetails>>(File.ReadAllText($".{Path.DirectorySeparatorChar}Repository{Path.DirectorySeparatorChar}ports.json")));
         }
     }
 }
