@@ -16,7 +16,7 @@ namespace fusionCacheApi.Repository
             {
                 throw new Exception("forced exception");
             }
-            return await Task.FromResult(DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss-ff"));
+            return await Task.FromResult(DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss-fff"));
         }
 
         public Task<List<PortDetails>?> GetPorts(bool throwEx)
