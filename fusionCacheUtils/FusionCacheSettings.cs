@@ -1,9 +1,10 @@
 ﻿using ZiggyCreatures.Caching.Fusion;
 
-namespace fusionCacheApi
+namespace fusionCacheUtils
 {
     public class FusionCacheSettingConfig
     {
+        public bool EnableBackPlane { get; set; } 
         public FusionCacheEntryOptions DefaultFusionCacheEntryOptions { get; init; } = new();
 
         public List<FusionCacheEntrySettingsConfig> CustomCacheSettings { get; init; } = new();

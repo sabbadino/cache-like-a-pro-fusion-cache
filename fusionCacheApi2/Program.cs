@@ -42,6 +42,7 @@ namespace fusionCacheApi
             {
                 a.Configuration = builder.Configuration["redis:connectionString"];
             });
+
             var fusionCacheBuilder = builder.Services.AddFusionCache().WithDefaultEntryOptions(fusionCacheSettingConfig.DefaultFusionCacheEntryOptions)
                 // ADD JSON.NET BASED SERIALIZATION FOR FUSION CACHE
                 .WithSerializer(
@@ -56,8 +57,8 @@ namespace fusionCacheApi
             if (fusionCacheSettingConfig.EnableBackPlane)
             {
                 fusionCacheBuilder.WithBackplane(
-                        new RedisBackplane(new RedisBackplaneOptions() { Configuration = builder.Configuration["redis:connectionString"] })
-                    );
+                    new RedisBackplane(new RedisBackplaneOptions() { Configuration = builder.Configuration["redis:connectionString"] })
+                );
             }
 
             builder.Services.AddSingleton<IFusionCacheWrapper, FusionCacheWrapper>();
