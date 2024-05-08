@@ -46,11 +46,7 @@ public class FusionCacheWrapper : IFusionCacheWrapper
             ArgumentNullException.ThrowIfNull(option);
             ArgumentNullException.ThrowIfNull(option.FusionCacheEntryOptions);
             var ret = await _fusionCache.GetOrSetAsync<T>(key, factory,
-                opt => {
-                    // how do I copy all settings in one line of code
-                    // https://github.com/ZiggyCreatures/FusionCache/issues/239
-                    opt.Duration = option.FusionCacheEntryOptions.Duration;
-                    });
+                option.FusionCacheEntryOptions);
             return ret;
         }
         else
