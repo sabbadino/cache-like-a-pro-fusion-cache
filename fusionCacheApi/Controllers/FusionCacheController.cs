@@ -23,6 +23,7 @@ namespace fusionCacheApi.Controllers
         private readonly IFusionCacheWrapper _fusionCacheWrapper;
         private const string CacheEntryTypeWithFailSafe = "CacheEntryTypeWithFailSafe";
         private const string CacheEntryTypeNoFailSafe = "CacheEntryTypeNoFailSafe";
+        private const string CacheEntryTypeStampede = "CacheEntryTypeStampede";
 
         public FusionCacheController(IDataSources dataSources, IFusionCacheWrapper fusionCacheWrapper)
         {
@@ -75,6 +76,22 @@ namespace fusionCacheApi.Controllers
             var ret = await _fusionCacheWrapper.GetOrSetAdaptiveCacheAsync<string>("cache-entry-adaptive-cache", Factory, CacheEntryTypeNoFailSafe);
             return ret;
         }
+        private static readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
+        [HttpGet(template: "cache-stampede", Name = "CacheStampedeFusion")]
+        public async Task<string> CacheStampede(int sleepInSeconds)
+        {
+            async Task<string> Factory(CancellationToken _)
+            {
+                await _lock.WaitAsync();
+                Counter.Count = Interlocked.Increment(ref Counter.Count);
+                Console.WriteLine($"Entered in fusion cache factory  {Counter.Count} times ");
+                _lock.Release();
+                await Task.Delay(sleepInSeconds * 1000);
+                return await Task.FromResult(Guid.NewGuid().ToString());
+            }
 
+            var ret = await _fusionCacheWrapper.GetOrSetAsync("cache-entry", Factory, CacheEntryTypeStampede);
+            return ret;
+        }
     }
 }

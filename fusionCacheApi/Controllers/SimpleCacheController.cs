@@ -2,6 +2,7 @@ using fusionCacheApi.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
+using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 
@@ -20,7 +21,6 @@ namespace fusionCacheApi.Controllers
         private readonly IDataSources _dataSources;
         private readonly IMemoryCache _memoryCache;
         private readonly IDistributedCache _distributedCache;
-        private const string CacheEntryType1 = "cacheentrytype1";
 
         public SimpleCacheController(IDataSources dataSources, IMemoryCache memoryCache,IDistributedCache distributedCache)
         {
@@ -111,6 +111,31 @@ namespace fusionCacheApi.Controllers
             }
             return (DateTime.Now - dt).TotalSeconds;
         }
+        private static readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
+        [HttpGet(template: "cache-stampede", Name = "CacheStampede")]
+        public async Task<CacheStampedeResponse> CacheStampede(int sleepInSeconds)
+        {
+            var ret = await _memoryCache.GetOrCreateAsync("cache-stampede", async cacheEntry => {
 
+                await _lock.WaitAsync();
+                Counter.Count = Interlocked.Increment(ref Counter.Count);
+                Console.WriteLine($"Entered in factory  {Counter.Count} times ");
+                _lock.Release();
+                await Task.Delay(sleepInSeconds*1000);
+                cacheEntry.AbsoluteExpiration = DateTimeOffset.UtcNow + TimeSpan.FromSeconds(30);
+                return await Task.FromResult(Guid.NewGuid().ToString());
+            });
+            return new CacheStampedeResponse {  Value = ret };
+        }
+    }
+
+    public class Counter
+    {
+        public static int Count;
+    }
+        public class CacheStampedeResponse
+    {
+        public string Value { get; init; } = "";
+      
     }
 }
