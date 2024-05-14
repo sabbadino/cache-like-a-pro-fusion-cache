@@ -63,8 +63,8 @@ namespace fusionCacheApi.Controllers
         }
         private readonly string _portKey = "allPorts";
         private static Random _random = new Random();
-        [HttpGet(template: "get-ports-in-memory", Name = "GetPortsInMemory")]
-        public async Task<double> GetPortsInMemory(int iterations, bool throwEx)
+        [HttpGet(template: "get-big-cache-payload-in-memory", Name = "GetBigCachePayloadInMemory")]
+        public async Task<double> GetBigCachePayloadInMemory(int iterations, bool throwEx)
         {
             var dt = DateTime.Now;
             for (int i = 0; i < iterations; i++)
@@ -84,7 +84,7 @@ namespace fusionCacheApi.Controllers
             return (DateTime.Now- dt).TotalSeconds;
         }
 
-        [HttpGet(template: "get-ports-redis", Name = "GetPortsRedis")]
+        [HttpGet(template: "get-big-cache-payload-redis", Name = "GetBigCachePayloadRedis")]
         public async Task<double> GetPortsRedis(int iterations, bool throwEx)
         {
             var dt = DateTime.Now;
@@ -112,10 +112,10 @@ namespace fusionCacheApi.Controllers
             return (DateTime.Now - dt).TotalSeconds;
         }
         private static readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
-        [HttpGet(template: "cache-stampede", Name = "CacheStampede")]
-        public async Task<CacheStampedeResponse> CacheStampede(int sleepInSeconds)
+        [HttpGet(template: "no-cache-stampede", Name = "NoCacheStampede")]
+        public async Task<CacheStampedeResponse> NoCacheStampede(int sleepInSeconds)
         {
-            var ret = await _memoryCache.GetOrCreateAsync("cache-stampede", async cacheEntry => {
+            var ret = await _memoryCache.GetOrCreateAsync("no-cache-stampede", async cacheEntry => {
 
                 await _lock.WaitAsync();
                 Counter.Count = Interlocked.Increment(ref Counter.Count);

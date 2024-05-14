@@ -25,23 +25,22 @@ namespace fusionCacheApi
             builder.Services.AddSingleton<IDataSources, DataSources>();
             builder.Services.AddMemoryCache();
 
-            builder.Services.AddOptions<FusionCacheSettingConfig>().BindConfiguration(nameof(FusionCacheSettingConfig)).Validate(config =>
-            {
-                return true;
-            }).ValidateOnStart();
+            builder.Services.AddOptions<FusionCacheSettingConfig>().BindConfiguration(nameof(FusionCacheSettingConfig));
 
             var section = builder.Configuration.GetSection(nameof(FusionCacheSettingConfig));
             var fusionCacheSettingConfig = section.Get<FusionCacheSettingConfig>();
             ArgumentNullException.ThrowIfNull(fusionCacheSettingConfig);
-
-            builder.Services.AddMemoryCache(o =>
+            if (fusionCacheSettingConfig.RegisterInMemoryExplicitly)
             {
-                o.ExpirationScanFrequency = TimeSpan.FromSeconds(1);
-            });
-            builder.Services.AddStackExchangeRedisCache(a =>
+                builder.Services.AddMemoryCache(o =>
+                {
+                    o.ExpirationScanFrequency = TimeSpan.FromSeconds(1);
+                });
+            }
+            if (fusionCacheSettingConfig.RegisterRedisDistributedExplicitly)
             {
-                a.Configuration = builder.Configuration["redis:connectionString"];
-            });
+                builder.Services.AddStackExchangeRedisCache(a => {a.Configuration = builder.Configuration["redis:connectionString"];});
+            }
             var fusionCacheBuilder = builder.Services.AddFusionCache().WithDefaultEntryOptions(fusionCacheSettingConfig.DefaultFusionCacheEntryOptions)
                 // ADD JSON.NET BASED SERIALIZATION FOR FUSION CACHE
                 .WithSerializer(

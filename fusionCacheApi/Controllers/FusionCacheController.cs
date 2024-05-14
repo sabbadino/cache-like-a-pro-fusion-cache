@@ -7,8 +7,8 @@ using System.Text.Json;
 using fusionCacheUtils;
 using ZiggyCreatures.Caching.Fusion;
 
-namespace fusionCacheApi.Controllers
-{
+namespace fusionCacheApi.Controllers;
+
 
 
 
@@ -21,14 +21,16 @@ namespace fusionCacheApi.Controllers
        
         private readonly IDataSources _dataSources;
         private readonly IFusionCacheWrapper _fusionCacheWrapper;
+        private readonly IFusionCache _fusionCache;
         private const string CacheEntryTypeWithFailSafe = "CacheEntryTypeWithFailSafe";
         private const string CacheEntryTypeNoFailSafe = "CacheEntryTypeNoFailSafe";
         private const string CacheEntryTypeStampede = "CacheEntryTypeStampede";
 
-        public FusionCacheController(IDataSources dataSources, IFusionCacheWrapper fusionCacheWrapper)
+        public FusionCacheController(IDataSources dataSources, IFusionCacheWrapper fusionCacheWrapper, IFusionCache fusionCache)
         {
             _dataSources = dataSources;
             _fusionCacheWrapper = fusionCacheWrapper;
+            _fusionCache = fusionCache;
         }
 
         [HttpGet(template: "current-time-fail-safe", Name = "GetCurrentTimeFailSafe")]
@@ -60,6 +62,35 @@ namespace fusionCacheApi.Controllers
             var ret = await _fusionCacheWrapper.GetOrSetAsync("cache-entry", Factory, CacheEntryTypeWithFailSafe);
             return ret;
         }
+
+        [HttpGet(template: "get-or-set-cache-entry-raw", Name = "GetOrSetCacheEntryRaw")]
+        public async Task<string> GetCacheEntryRaw(string value)
+        {
+            var ret = await _fusionCache.GetOrSetAsync("cache-entry", async _ => await Task.FromResult(value),new FusionCacheEntryOptions
+            {
+                Duration= TimeSpan.FromMinutes(1)   
+            });
+            return ret;
+        }
+
+        [HttpGet(template: "get-or-set-cache-entry-raw-fails-safe-default-value", Name = "GetOrSetCacheEntryRawFailSafeDefaultValue")]
+        public async Task<string> GetOrSetCacheEntryRawFailSafeDefaultValue(string value, bool throwEx)
+        {
+            var ret = await _fusionCache.GetOrSetAsync("cache-entry", 
+                async _ => {
+                    if (throwEx)
+                    {
+                        throw new Exception("Exception");
+                    }
+                    return await Task.FromResult(value);
+                },
+                "theDefaultValue", new FusionCacheEntryOptions
+            {
+                Duration = TimeSpan.FromSeconds(10), IsFailSafeEnabled=true, FailSafeMaxDuration=TimeSpan.FromHours(1), 
+            });
+            return ret;
+        }
+
 
         [HttpGet(template: "get-or-set-cache-entry-with-adaptive-cache", Name = "GetOrSetCacheEntryWithAdaptiveCache")]
         public async Task<string> GetOrSetCacheEntryWithAdaptiveCache(string value, int? durationInSeconds)
@@ -93,5 +124,10 @@ namespace fusionCacheApi.Controllers
             var ret = await _fusionCacheWrapper.GetOrSetAsync("cache-entry", Factory, CacheEntryTypeStampede);
             return ret;
         }
-    }
+
+        [HttpGet(template: "reset-factory-counter", Name = "ResetFactoryCounter")]
+        public void ResetFactoryCounter(int sleepInSeconds)
+        {
+            Counter.Count = 0;
+        }
 }
