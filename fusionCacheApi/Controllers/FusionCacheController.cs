@@ -73,26 +73,86 @@ namespace fusionCacheApi.Controllers;
             return ret;
         }
 
-        [HttpGet(template: "get-or-set-cache-entry-raw-fails-safe-default-value", Name = "GetOrSetCacheEntryRawFailSafeDefaultValue")]
-        public async Task<string> GetOrSetCacheEntryRawFailSafeDefaultValue(string value, bool throwEx)
+        [HttpGet(template: "get-or-set-cache-entry-raw-hard-timeout", Name = "GetOrSetCacheEntryRawHardTimeOut")]
+        public async Task<string> GetOrSetCacheEntryRawTimeOut(string value, int factorySleepInSeconds)
         {
-            var ret = await _fusionCache.GetOrSetAsync("cache-entry", 
+            var ret = await _fusionCache.GetOrSetAsync("get-or-set-cache-entry-raw-timeout-no-fail-safe",
+                async _ => {
+                    await Task.Delay(factorySleepInSeconds * 1000);
+                    return await Task.FromResult(value);
+                }, new FusionCacheEntryOptions
+                {
+                    Duration = TimeSpan.FromSeconds(60),
+                    FactoryHardTimeout = TimeSpan.FromSeconds(15),
+                });
+            return ret;
+        }
+
+    [HttpGet(template: "get-or-set-cache-entry-raw-fails-safe-default-value", Name = "GetOrSetCacheEntryRawFailSafeDefaultValue")]
+        public async Task<string> GetOrSetCacheEntryRawFailSafeDefaultValue(string value, bool throwEx, int factorySleepInSeconds)
+        {
+        // 1) call with factorySleepInSeconds > FactoryHardTimeout = 15 .. it will return "theDefaultValue"
+        // 2) call again after more 5 sec .. factory has finieshed ... you will get the value you requested 
+        // 3) let wait expiration call with factorySleepInSeconds =1 , throw ex = true .. with different value ..
+        // you will get the old value (Fail safe)
+        // 4) factorySleepInSeconds =1 , throw ex = false .. with different value ..
+        // you will get the new value 
+        // when FailSafeMaxDuration expires .. you ae back to point 1 
+        var ret = await _fusionCache.GetOrSetAsync("get-or-set-cache-entry-raw-fails-safe-default-value", 
                 async _ => {
                     if (throwEx)
                     {
                         throw new Exception("Exception");
                     }
+                    await Task.Delay(factorySleepInSeconds * 1000);
                     return await Task.FromResult(value);
                 },
-                "theDefaultValue", new FusionCacheEntryOptions
+                "theDefaultValue" /* this default value applies only when fail-safe is enabled */ , new FusionCacheEntryOptions
             {
-                Duration = TimeSpan.FromSeconds(10), IsFailSafeEnabled=true, FailSafeMaxDuration=TimeSpan.FromHours(1), 
-            });
+                Duration = TimeSpan.FromSeconds(15), IsFailSafeEnabled=true
+                , FailSafeMaxDuration=TimeSpan.FromHours(1) 
+                //FailSafeThrottleDuration
+                , FactoryHardTimeout = TimeSpan.FromSeconds(10)
+                , FactorySoftTimeout= TimeSpan.FromSeconds(5),
+                });
             return ret;
         }
 
+    [HttpGet(template: "get-or-set-cache-entry-raw-fails-safe", Name = "GetOrSetCacheEntryRawFailSafe")]
+    public async Task<string> GetOrSetCacheEntryRawFailSafe(string value, bool throwEx, int factorySleepInSeconds)
+    {
+        // 1) call with factorySleepInSeconds > FactoryHardTimeout = 15 .. it will return error 
+        // 2) call again after more 5 sec .. factory has finieshed ... you will get the value you requested 
+        // 3) let wait expiration call with factorySleepInSeconds =1 , throw ex = true .. with different value ..
+        // you will get the old value (Fail safe)
+        // 4) factorySleepInSeconds =1 , throw ex = false .. with different value ..
+        // you will get the new value 
+        // when FailSafeMaxDuration expires .. you ae back to point 1 
+        var ret = await _fusionCache.GetOrSetAsync("get-or-set-cache-entry-raw-fails-safe",
+                        async _ => {
+                            if (throwEx)
+                            {
+                                throw new Exception("Exception");
+                            }
+                            await Task.Delay(factorySleepInSeconds * 1000);
+                            return await Task.FromResult(value);
+                        }
+                {
+            Duration = TimeSpan.FromSeconds(15),
+                    IsFailSafeEnabled = true
+                    ,
+                    FailSafeMaxDuration = TimeSpan.FromHours(1)
+                    //FailSafeThrottleDuration
+                    ,
+                    FactoryHardTimeout = TimeSpan.FromSeconds(10)
+                    ,
+                    FactorySoftTimeout = TimeSpan.FromSeconds(5),
+                });
+        return ret;
+    }
 
-        [HttpGet(template: "get-or-set-cache-entry-with-adaptive-cache", Name = "GetOrSetCacheEntryWithAdaptiveCache")]
+
+    [HttpGet(template: "get-or-set-cache-entry-with-adaptive-cache", Name = "GetOrSetCacheEntryWithAdaptiveCache")]
         public async Task<string> GetOrSetCacheEntryWithAdaptiveCache(string value, int? durationInSeconds)
         {
             async Task<string> Factory(FusionCacheFactoryExecutionContext<string> ctx, CancellationToken _)
