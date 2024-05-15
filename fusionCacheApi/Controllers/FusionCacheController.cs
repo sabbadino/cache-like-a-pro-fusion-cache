@@ -91,13 +91,14 @@ namespace fusionCacheApi.Controllers;
     [HttpGet(template: "get-or-set-cache-entry-raw-fails-safe-default-value", Name = "GetOrSetCacheEntryRawFailSafeDefaultValue")]
         public async Task<string> GetOrSetCacheEntryRawFailSafeDefaultValue(string value, bool throwEx, int factorySleepInSeconds)
         {
-        // 1) call with factorySleepInSeconds > FactoryHardTimeout = 15 .. it will return "theDefaultValue"
-        // 2) call again after more 5 sec .. factory has finieshed ... you will get the value you requested 
-        // 3) let wait expiration call with factorySleepInSeconds =1 , throw ex = true .. with different value ..
+        // 1) call with factorySleepInSeconds > FactoryHardTimeout = 10 (15) .. it will return "theDefaultValue"
+        // 2) call again after more 5 sec .. factory has finished ... you will get the value you requested 
+        // 3) lets wait expiration of entry (15 secs) then call with factorySleepInSeconds = 1 , throw ex = true .. with different value ..
         // you will get the old value (Fail safe)
-        // 4) factorySleepInSeconds =1 , throw ex = false .. with different value ..
+        // you will see exception in the logs
+        // 4) let wait expiration of entry (15 secs) factorySleepInSeconds =1 , throw ex = false .. with different value ..
         // you will get the new value 
-        // when FailSafeMaxDuration expires .. you ae back to point 1 
+        // when FailSafeMaxDuration expires .. you are back to point 1 
         var ret = await _fusionCache.GetOrSetAsync("get-or-set-cache-entry-raw-fails-safe-default-value", 
                 async _ => {
                     if (throwEx)
@@ -121,13 +122,14 @@ namespace fusionCacheApi.Controllers;
     [HttpGet(template: "get-or-set-cache-entry-raw-fails-safe", Name = "GetOrSetCacheEntryRawFailSafe")]
     public async Task<string> GetOrSetCacheEntryRawFailSafe(string value, bool throwEx, int factorySleepInSeconds)
     {
-        // 1) call with factorySleepInSeconds > FactoryHardTimeout = 15 .. it will return error 
-        // 2) call again after more 5 sec .. factory has finieshed ... you will get the value you requested 
-        // 3) let wait expiration call with factorySleepInSeconds =1 , throw ex = true .. with different value ..
+        // 1) call with factorySleepInSeconds > FactoryHardTimeout = 10 (15) .. it will return exception
+        // 2) call again after more 5 sec .. factory has finished ... you will get the value you requested 
+        // 3) lets wait expiration of entry (15 secs) then call with factorySleepInSeconds = 1 , throw ex = true .. with different value ..
         // you will get the old value (Fail safe)
-        // 4) factorySleepInSeconds =1 , throw ex = false .. with different value ..
+        // you will see exception in the logs
+        // 4) let wait expiration of entry (15 secs) factorySleepInSeconds =1 , throw ex = false .. with different value ..
         // you will get the new value 
-        // when FailSafeMaxDuration expires .. you ae back to point 1 
+        // when FailSafeMaxDuration expires .. you are back to point 1 
         var ret = await _fusionCache.GetOrSetAsync("get-or-set-cache-entry-raw-fails-safe",
                         async _ => {
                             if (throwEx)
@@ -137,10 +139,10 @@ namespace fusionCacheApi.Controllers;
                             await Task.Delay(factorySleepInSeconds * 1000);
                             return await Task.FromResult(value);
                         }
-                {
-            Duration = TimeSpan.FromSeconds(15),
-                    IsFailSafeEnabled = true
-                    ,
+                        , new FusionCacheEntryOptions
+                         {
+                    Duration = TimeSpan.FromSeconds(15),
+                    IsFailSafeEnabled = true,
                     FailSafeMaxDuration = TimeSpan.FromHours(1)
                     //FailSafeThrottleDuration
                     ,
