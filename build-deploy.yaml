@@ -25,20 +25,21 @@ jobs:
    buildConfiguration: 'Release'    
    solution: 'fusionCacheApi.sln'
    project: 'fusionCacheApi/fusionCacheApi.csproj'
-   redisconnectionstring: ${{ variables.redis__connectionstring }}
+   redisconnectionstring: ${redisconnectionstring}
 
 
   steps:
   - checkout: self
     clean: true
 
-  - task: UseDotNet@2
-    displayName: 'Use .NET Core sdk'
-    inputs:
-     packageType: sdk
-     version: '8.x'
-     installationPath: $(Agent.ToolsDirectory)/dotnet
-  - task: NuGetToolInstaller@1
+ # - task: UseDotNet@2
+  #  displayName: 'Use .NET Core sdk'
+   # inputs:
+    # packageType: sdk
+     #version: '8.x'
+     #installationPath: $(Agent.ToolsDirectory)/dotnet
+
+ # - task: NuGetToolInstaller@1
 
   - task: DotNetCoreCLI@2
     inputs:
