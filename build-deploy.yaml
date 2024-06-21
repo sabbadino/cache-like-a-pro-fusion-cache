@@ -78,7 +78,7 @@ jobs:
       appName: 'fusion-cache-api-west-1'
       azureSubscription: 'msc-dev-academy'
       package: '$(Build.ArtifactStagingDirectory)\fusionCacheApi'
-      appSettings: '-redis__connectionstring $redisconnectionstring' 
+      appSettings: '-redis__connectionstring $(redisconnectionstring)' 
       
   - task: AzureWebApp@1
     displayName: 'deploy to west-2'      
@@ -87,7 +87,7 @@ jobs:
       appName: 'fusion-cache-api-west-2'
       azureSubscription: 'msc-dev-academy'
       package: '$(Build.ArtifactStagingDirectory)\fusionCacheApi'
-      appSettings: '-redis__connectionstring $redisconnectionstring' 
+      appSettings: '-redis__connectionstring $(redisconnectionstring)' 
 
 
   - task: AzureWebApp@1
@@ -97,7 +97,7 @@ jobs:
       appName: 'fusion-cache-api-north-1'
       azureSubscription: 'msc-dev-academy'
       package: '$(Build.ArtifactStagingDirectory)\fusionCacheApi'
-      appSettings: '-redis__connectionstring $redisconnectionstring' 
+      appSettings: '-redis__connectionstring $(redisconnectionstring)' 
 
         
   - task: AzureWebApp@1
@@ -107,6 +107,6 @@ jobs:
         appName: 'fusion-cache-api-north-2'
         azureSubscription: 'msc-dev-academy'
         package: '$(Build.ArtifactStagingDirectory)\fusionCacheApi'
-        appSettings: '-redis__connectionstring $redisconnectionstring' 
+        appSettings: '-redis__connectionstring $(redisconnectionstring)' 
 
   
