@@ -79,3 +79,27 @@ jobs:
       azureSubscription: 'msc-dev-academy'
       package: '$(Build.ArtifactStagingDirectory)\fusionCacheApi'
       
+  - task: AzureWebApp@1
+    displayName: 'deploy to west-2'      
+    inputs: 
+      appType: 'webApp'
+      appName: 'fusion-cache-api-west-2'
+      azureSubscription: 'msc-dev-academy'
+      package: '$(Build.ArtifactStagingDirectory)\fusionCacheApi'
+
+  - task: AzureWebApp@1
+    displayName: 'deploy to north-1'      
+    inputs: 
+      appType: 'webApp'
+      appName: 'fusion-cache-api-north-1'
+      azureSubscription: 'msc-dev-academy'
+      package: '$(Build.ArtifactStagingDirectory)\fusionCacheApi'
+        
+  - task: AzureWebApp@1
+    displayName: 'deploy to north-2'      
+    inputs: 
+        appType: 'webApp'
+        appName: 'fusion-cache-api-north-2'
+        azureSubscription: 'msc-dev-academy'
+        package: '$(Build.ArtifactStagingDirectory)\fusionCacheApi'
+  
