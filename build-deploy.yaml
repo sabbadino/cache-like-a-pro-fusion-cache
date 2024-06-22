@@ -25,90 +25,82 @@ jobs:
    buildConfiguration: 'Release'    
    solution: 'fusionCacheApi.sln'
    project: 'fusionCacheApi/fusionCacheApi.csproj'
-   redisconnectionstring: ${redisconnectionstring}
-
-
+   redisccn:  $(redisconnectionstring)
   steps:
   - checkout: self
     clean: true
 
- # - task: UseDotNet@2
-  #  displayName: 'Use .NET Core sdk'
-   # inputs:
-    # packageType: sdk
-     #version: '8.x'
-     #installationPath: $(Agent.ToolsDirectory)/dotnet
+  - script: |
+     echo $(redisccn)
 
- # - task: NuGetToolInstaller@1
-
-  - task: DotNetCoreCLI@2
-    displayName: 'restore nuget'
-    inputs:
-      projects:  '$(solution)'
-      command: 'restore'
-      selectOrConfig: select
+  # - task: DotNetCoreCLI@2
+  #   displayName: 'restore nuget'
+  #   inputs:
+  #     projects:  '$(solution)'
+  #     command: 'restore'
+  #     selectOrConfig: select
 
   
 
-  - task: DotNetCoreCLI@2
-    displayName: 'Build Project'
-    inputs:
-      command: build
-      projects: $(project)
-      arguments: '--configuration $(buildConfiguration)'
+  # - task: DotNetCoreCLI@2
+  #   displayName: 'Build Project'
+  #   inputs:
+  #     command: build
+  #     projects: $(project)
+  #     arguments: '--configuration $(buildConfiguration)'
 
 
-  - task: DotNetCoreCLI@2
-    displayName: 'Publish and zip'
-    inputs:
-      command: publish
-      publishWebProjects: False
-      projects: $(project)
-      arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
-      zipAfterPublish: false
+  # - task: DotNetCoreCLI@2
+  #   displayName: 'Publish and zip'
+  #   inputs:
+  #     command: publish
+  #     publishWebProjects: False
+  #     projects: $(project)
+  #     arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+  #     zipAfterPublish: false
 
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-      ArtifactName: 'drop'
-      TargetPath: '\\my\share\$(Build.DefinitionName)\$(Build.BuildNumber)'
+  # - task: PublishBuildArtifacts@1
+  #   inputs:
+  #     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+  #     ArtifactName: 'drop'
+  #     TargetPath: '\\my\share\$(Build.DefinitionName)\$(Build.BuildNumber)'
 
-  - task: AzureWebApp@1
-    displayName: 'deploy to west-1'      
-    inputs: 
-      appType: 'webApp'
-      appName: 'fusion-cache-api-west-1'
-      azureSubscription: 'msc-dev-academy'
-      package: '$(Build.ArtifactStagingDirectory)\fusionCacheApi'
-      appSettings: -redis__connectionstring $(redisconnectionstring) 
+  # - task: AzureWebApp@1
+  #   displayName: 'deploy to west-1'      
+  #   inputs: 
+  #     appType: 'webApp'
+  #     appName: 'fusion-cache-api-west-1'
+  #     azureSubscription: 'msc-dev-academy'
+  #     package: '$(Build.ArtifactStagingDirectory)\fusionCacheApi'
+  #     appSettings: -redis__connectionstring $(redisccn) 
       
-  - task: AzureWebApp@1
-    displayName: 'deploy to west-2'      
-    inputs: 
-      appType: 'webApp'
-      appName: 'fusion-cache-api-west-2'
-      azureSubscription: 'msc-dev-academy'
-      package: '$(Build.ArtifactStagingDirectory)\fusionCacheApi'
-      appSettings: -redis__connectionstring $(redisconnectionstring) 
+  # - task: AzureWebApp@1
+  #   displayName: 'deploy to west-2'      
+  #   inputs: 
+  #     appType: 'webApp'
+  #     appName: 'fusion-cache-api-west-2'
+  #     azureSubscription: 'msc-dev-academy'
+  #     package: '$(Build.ArtifactStagingDirectory)\fusionCacheApi'
+  #     appSettings: -redis__connectionstring $(redisccn)
 
 
-  - task: AzureWebApp@1
-    displayName: 'deploy to north-1'      
-    inputs: 
-      appType: 'webApp'
-      appName: 'fusion-cache-api-north-1'
-      azureSubscription: 'msc-dev-academy'
-      package: '$(Build.ArtifactStagingDirectory)\fusionCacheApi'
-      appSettings: -redis__connectionstring $(redisconnectionstring) 
+  # - task: AzureWebApp@1
+  #   displayName: 'deploy to north-1'      
+  #   inputs: 
+  #     appType: 'webApp'
+  #     appName: 'fusion-cache-api-north-1'
+  #     azureSubscription: 'msc-dev-academy'
+  #     package: '$(Build.ArtifactStagingDirectory)\fusionCacheApi'
+  #     appSettings: -redis__connectionstring $(redisccn)
 
         
-  - task: AzureWebApp@1
-    displayName: 'deploy to north-2'      
-    inputs: 
-        appType: 'webApp'
-        appName: 'fusion-cache-api-north-2'
-        azureSubscription: 'msc-dev-academy'
-        package: '$(Build.ArtifactStagingDirectory)\fusionCacheApi'
-        appSettings: -redis__connectionstring $(redisconnectionstring) 
+  # - task: AzureWebApp@1
+  #   displayName: 'deploy to north-2'      
+  #   inputs: 
+  #       appType: 'webApp'
+  #       appName: 'fusion-cache-api-north-2'
+  #       azureSubscription: 'msc-dev-academy'
+  #       package: '$(Build.ArtifactStagingDirectory)\fusionCacheApi'
+  #       appSettings: -redis__connectionstring $(redisccn)
 
   
