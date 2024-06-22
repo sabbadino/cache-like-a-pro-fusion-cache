@@ -2,6 +2,7 @@ using fusionCacheApi.Repository;
 using fusionCacheUtils;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Configuration;
+using Microsoft.OpenApi.Models;
 using ZiggyCreatures.Caching.Fusion;
 using ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis;
 using ZiggyCreatures.Caching.Fusion.Serialization.SystemTextJson;
@@ -20,9 +21,12 @@ namespace fusionCacheApi
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = $"fusionCacheApi {Environment.GetEnvironmentVariable("WEBSITE_SITE_NAME") ?? "local"}", Version = "v1.0" });
+            });
 
-            builder.Services.AddSingleton<IDataSources, DataSources>();
+                builder.Services.AddSingleton<IDataSources, DataSources>();
             builder.Services.AddMemoryCache();
 
             builder.Services.AddOptions<FusionCacheSettingConfig>().BindConfiguration(nameof(FusionCacheSettingConfig));

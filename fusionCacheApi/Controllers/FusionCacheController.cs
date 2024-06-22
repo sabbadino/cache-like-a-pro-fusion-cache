@@ -192,4 +192,10 @@ namespace fusionCacheApi.Controllers;
         {
             Counter.Count = 0;
         }
+
+        public class Counter
+        {
+            public static int Count;
+        }
+        
 }
