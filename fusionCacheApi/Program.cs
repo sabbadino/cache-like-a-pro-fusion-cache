@@ -23,7 +23,7 @@ namespace fusionCacheApi
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = $"fusionCacheApi {Environment.GetEnvironmentVariable("WEBSITE_SITE_NAME") ?? "local"}", Version = "v1.0" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = $"{Environment.GetEnvironmentVariable("WEBSITE_SITE_NAME") ?? "local"}", Version = "v1.0" });
             });
 
                 builder.Services.AddSingleton<IDataSources, DataSources>();
