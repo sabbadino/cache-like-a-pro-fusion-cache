@@ -2,6 +2,7 @@ using fusionCacheApi.Repository;
 using fusionCacheUtils;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.OpenApi.Models;
 using ZiggyCreatures.Caching.Fusion;
 using ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis;
@@ -15,7 +16,21 @@ namespace fusionCacheApi
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            
+            var aiOptions = new Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions
+                {
+                    // Disables adaptive sampling.
+                    EnableAdaptiveSampling = false,
+                };
+
+            builder.Services.AddApplicationInsightsTelemetry(aiOptions);
+            var aiCnString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"];
+            builder.Logging.AddApplicationInsights(
+                configureTelemetryConfiguration: (config) =>
+                {
+                   config.ConnectionString = aiCnString;
+                }, configureApplicationInsightsLoggerOptions: (options) => { }
+            );
+            builder.Logging.AddFilter<ApplicationInsightsLoggerProvider>(null, LogLevel.Debug);
             // Add services to the container.
 
             builder.Services.AddControllers();

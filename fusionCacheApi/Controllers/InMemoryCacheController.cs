@@ -20,11 +20,14 @@ namespace fusionCacheApi.Controllers
        
         private readonly IDataSources _dataSources;
         private readonly IMemoryCache _memoryCache;
+        private readonly ILogger _logger;
 
-        public InMemoryCacheController(IDataSources dataSources, IMemoryCache memoryCache)
+        public InMemoryCacheController(IDataSources dataSources, IMemoryCache memoryCache,ILogger<InMemoryCacheController> logger)
         {
             _dataSources = dataSources;
             _memoryCache = memoryCache;
+            _logger = logger;
+            _logger.LogInformation("enter");
         }
 
       
@@ -32,6 +35,7 @@ namespace fusionCacheApi.Controllers
         [HttpGet(template: "current-time-in-memory", Name = "GetCurrentTimeInMemory")]
         public async Task<string> GetCurrentTimeInMemory(string location, bool throwEx)
         {
+
             var ret = await _memoryCache.GetOrCreateAsync(location, async cacheEntry=>
             {
                 if (throwEx)
@@ -67,11 +71,22 @@ namespace fusionCacheApi.Controllers
             return (DateTime.Now- dt).TotalSeconds;
         }
 
-       
+        [HttpGet(template: "reset-in-memory-factory-counter", Name = "ResetInMemoryFactoryCounter")]
+        public void ResetFactoryCounter()
+        {
+            Counter.Count = 0;
+        }
+
+        [HttpGet(template: "get-in-memory-factory-counter", Name = "GetInMemoryFactoryCounter")]
+        public int GetFactoryCounter()
+        {
+            return Counter.Count;
+        }
+
         private static readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
         
-        [HttpGet(template: "no-cache-stampede", Name = "NoCacheStampede")]
-        public async Task<CacheStampedeResponse> NoCacheStampede(int sleepInSeconds)
+        [HttpGet(template: "cache-stampede", Name = "CacheStampede")]
+        public async Task<CacheStampedeResponse> CacheStampede(int sleepInSeconds)
         {
             var ret = await _memoryCache.GetOrCreateAsync("no-cache-stampede", async cacheEntry => {
 
@@ -83,7 +98,7 @@ namespace fusionCacheApi.Controllers
                 cacheEntry.AbsoluteExpiration = DateTimeOffset.UtcNow + TimeSpan.FromSeconds(30);
                 return await Task.FromResult(Guid.NewGuid().ToString());
             });
-            return new CacheStampedeResponse {  Value = ret };
+            return new CacheStampedeResponse {  Value = ret  };
         }
 
         public class Counter

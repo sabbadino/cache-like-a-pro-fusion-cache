@@ -186,9 +186,13 @@ namespace fusionCacheApi.Controllers;
             var ret = await _fusionCacheWrapper.GetOrSetAsync("cache-entry", Factory, CacheEntryTypeStampede);
             return ret;
         }
-
-        [HttpGet(template: "reset-factory-counter", Name = "ResetFactoryCounter")]
-        public void ResetFactoryCounter(int sleepInSeconds)
+        [HttpGet(template: "get-factory-counter", Name = "GetFactoryCounter")]
+        public int GetFactoryCounter()
+        {
+            return Counter.Count;
+        }
+    [HttpGet(template: "reset-factory-counter", Name = "ResetFactoryCounter")]
+        public void ResetFactoryCounter()
         {
             Counter.Count = 0;
         }

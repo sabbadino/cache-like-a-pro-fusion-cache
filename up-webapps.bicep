@@ -1,5 +1,5 @@
 param sku string = 'B1' 
-param locationwest string = 'francecentral' 
+param locationwest string = 'eastus' 
 param locationnorth string = 'northeurope' 
 var appServicePlanNameWest = 'fusion-cache-api-west-app-plan'
 var appServicePlanNameNorth = 'fusion-cache-api-north-app-plan'
@@ -7,6 +7,8 @@ var webSiteNameWest1 = 'fusion-cache-api-west-1'
 var webSiteNameWest2 = 'fusion-cache-api-west-2'
 var webSiteNameNorth1 = 'fusion-cache-api-north-1'
 var webSiteNameNorth2 = 'fusion-cache-api-north-2'
+var logAnalyticsWorkspaceName  = 'fusion-cache-logAnalyticsWorkspace'
+var applicationInsightsName  = 'fusion-cache-applicationInsights'
 
 // redis 
 
@@ -88,5 +90,23 @@ resource appServicen2 'Microsoft.Web/sites@2020-06-01' = {
                 value : 'dotnetcore'
             }]
     }
+  }
+}
+
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-12-01-preview' = {
+  name: logAnalyticsWorkspaceName
+  location: resourceGroup().location
+  properties: {
+    retentionInDays: 90
+  }
+}
+
+resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
+  name: applicationInsightsName
+  location: resourceGroup().location
+  kind: 'web'
+  properties: {
+    Application_Type: 'web'
+    WorkspaceResourceId: logAnalyticsWorkspace.id
   }
 }

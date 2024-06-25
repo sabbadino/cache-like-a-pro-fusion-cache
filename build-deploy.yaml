@@ -26,6 +26,7 @@ jobs:
    solution: 'fusionCacheApi.sln'
    project: 'fusionCacheApi/fusionCacheApi.csproj'
    redisccn:  $(redisconnectionstring)
+   aicnstring: 'InstrumentationKey=34a45f8a-cb17-4bfb-8560-598339378a14;IngestionEndpoint=https://westeurope-5.in.applicationinsights.azure.com/;LiveEndpoint=https://westeurope.livediagnostics.monitor.azure.com/;ApplicationId=8cc56933-86df-4e7a-b9d2-01bbce7c97a9'
   steps:
   - checkout: self
     clean: true
@@ -72,7 +73,7 @@ jobs:
       appName: 'fusion-cache-api-west-1'
       azureSubscription: 'msc-dev-academy'
       package: '$(Build.ArtifactStagingDirectory)\fusionCacheApi'
-      appSettings: -redis__connectionstring $(redisccn) -ASPNETCORE_ENVIRONMENT w1
+      appSettings: -redis__connectionstring $(redisccn) -ASPNETCORE_ENVIRONMENT w1 -aicnstring $(aicnstring)
       
   - task: AzureWebApp@1
     displayName: 'deploy to west-2'      
@@ -81,7 +82,7 @@ jobs:
       appName: 'fusion-cache-api-west-2'
       azureSubscription: 'msc-dev-academy'
       package: '$(Build.ArtifactStagingDirectory)\fusionCacheApi'
-      appSettings: -redis__connectionstring $(redisccn) -ASPNETCORE_ENVIRONMENT w2
+      appSettings: -redis__connectionstring $(redisccn) -ASPNETCORE_ENVIRONMENT w2 -aicnstring $(aicnstring)
 
 
   - task: AzureWebApp@1
@@ -91,7 +92,7 @@ jobs:
       appName: 'fusion-cache-api-north-1'
       azureSubscription: 'msc-dev-academy'
       package: '$(Build.ArtifactStagingDirectory)\fusionCacheApi'
-      appSettings: -redis__connectionstring $(redisccn) -ASPNETCORE_ENVIRONMENT n1
+      appSettings: -redis__connectionstring $(redisccn) -ASPNETCORE_ENVIRONMENT n1 -aicnstring $(aicnstring)
 
         
   - task: AzureWebApp@1
@@ -101,6 +102,6 @@ jobs:
         appName: 'fusion-cache-api-north-2'
         azureSubscription: 'msc-dev-academy'
         package: '$(Build.ArtifactStagingDirectory)\fusionCacheApi'
-        appSettings: -redis__connectionstring $(redisccn) -ASPNETCORE_ENVIRONMENT n2
+        appSettings: -redis__connectionstring $(redisccn) -ASPNETCORE_ENVIRONMENT n2 -aicnstring $(aicnstring)
 
   
