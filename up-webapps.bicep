@@ -29,6 +29,7 @@ resource appServicew1 'Microsoft.Web/sites@2020-06-01' = {
   properties: {
     serverFarmId: appServicePlanWest.id
     siteConfig: {
+      alwaysOn: true
       netFrameworkVersion: '8.0'
 	    metadata: [{
                 name : 'CURRENT_STACK'
@@ -44,6 +45,7 @@ resource appServicew2 'Microsoft.Web/sites@2020-06-01' = {
   properties: {
     serverFarmId: appServicePlanWest.id
     siteConfig: {
+      alwaysOn: true
       netFrameworkVersion: '8.0'
 	    metadata: [{
                 name : 'CURRENT_STACK'
@@ -69,6 +71,7 @@ resource appServicen1 'Microsoft.Web/sites@2020-06-01' = {
   properties: {
     serverFarmId: appServicePlanNorth.id
     siteConfig: {
+      alwaysOn: true
       netFrameworkVersion: '8.0'
 	    metadata: [{
                 name : 'CURRENT_STACK'
@@ -84,6 +87,7 @@ resource appServicen2 'Microsoft.Web/sites@2020-06-01' = {
   properties: {
     serverFarmId: appServicePlanNorth.id
     siteConfig: {
+      alwaysOn: true
       netFrameworkVersion: '8.0'
 	    metadata: [{
                 name : 'CURRENT_STACK'
