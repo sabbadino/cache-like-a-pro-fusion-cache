@@ -16,6 +16,8 @@ namespace fusionCacheApi
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            var aiCnString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"];
+            ArgumentException.ThrowIfNullOrEmpty(aiCnString);
             var aiOptions = new Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions
                 {
                     // Disables adaptive sampling.
@@ -23,7 +25,7 @@ namespace fusionCacheApi
                 };
 
             builder.Services.AddApplicationInsightsTelemetry(aiOptions);
-            var aiCnString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"];
+           
             builder.Logging.AddApplicationInsights(
                 configureTelemetryConfiguration: (config) =>
                 {
