@@ -19,4 +19,12 @@
     <ProjectReference Include="..\fusionCacheUtils\fusionCacheUtils.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="appsettings.w1.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

@@ -15,7 +15,7 @@ namespace fusionCacheApi
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
+            
             // Add services to the container.
 
             builder.Services.AddControllers();
@@ -23,7 +23,9 @@ namespace fusionCacheApi
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = $"{Environment.GetEnvironmentVariable("WEBSITE_SITE_NAME") ?? "local"}", Version = "v1.0" });
+                //     c.SwaggerDoc("v1", new OpenApiInfo { Title = $"{Environment.GetEnvironmentVariable("WEBSITE_SITE_NAME") ?? "local"}", Version = "v1.0" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = $"{builder.Environment.EnvironmentName}", Version = "v1.0" });
+                
             });
 
                 builder.Services.AddSingleton<IDataSources, DataSources>();
