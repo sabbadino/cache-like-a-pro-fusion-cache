@@ -15,22 +15,20 @@ open redis browser
 
 
 demo : 
-1) cache stampede -> in memory .. show counter .. use cache-stampede.ps1 .. then call show counter
-2) show what method does ,  
+1) distributed vs memory show what method does ,  
 mention distributed is remote : serialization, network : big payload -> use 10000 ,
 run in memory in memory , 
 then run distributed .. 
 show the difference in time 
 distributed consume resources : show app plan cpu percentage / web app cpu time / resouurces in redis going up (server LOAD) 
 it takes time to get telemetry .. thre is a delay 
-, show data in redis browser
 
 SHOW DIFFERNCES IN TIME compared ot in memory 
 
-3) simple FC get or create : get-or-set-cache-entry-raw
-4) FC with wrapper get or create . using FusionCacheEntryOptions settings from configuration : /get-or-set-cache-entr
-5) factory timeout with background continuation
-6) cache stampede -> in memory .. show counter .. use cache-stampede.ps1 CHANGE URL .. then call show counter
+2) can skip simple FC get or create : get-or-set-cache-entry-raw
+3) FC with wrapper get or create . using FusionCacheEntryOptions settings from configuration : /get-or-set-cache-entr
+4) factory timeout with background continuation
+5) cache stampede -> in memory .. show counter .. use cache-stampede.ps1 CHANGE URL .. then call show counter
 
 7) fail safe : GetOrSetCacheEntryRawFailSafe
 show duration is 5 seconds
