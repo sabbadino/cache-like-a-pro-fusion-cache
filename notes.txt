@@ -6,10 +6,10 @@ provision redis up-redis.bicep
 open ado , go to build / deploy def 
 deploy 
 
+open power shell on C:\PRODUCT\repos\personal-external\personal\cache-like-a-pro-fusion-cache
 open app plan west cpu percentage
 open web app west 1 cpu time 
 open page in browser for each web app 
-open portal using red.msc.com (redis usage)
 open redis browser
 
 
@@ -27,13 +27,19 @@ it takes time to get telemetry .. thre is a delay
 
 SHOW DIFFERNCES IN TIME compared ot in memory 
 
-3) simple FC get or create 
-4) FC with wrapper get or create . using FusionCacheEntryOptions settings from configuration 
+3) simple FC get or create : get-or-set-cache-entry-raw
+4) FC with wrapper get or create . using FusionCacheEntryOptions settings from configuration : /get-or-set-cache-entr
 5) factory timeout with background continuation
 6) cache stampede -> in memory .. show counter .. use cache-stampede.ps1 CHANGE URL .. then call show counter
-7) fail safe
+
+7) fail safe : GetOrSetCacheEntryRawFailSafe
+show duration is 5 seconds
+fail safe 1 hour 
+entry in redis is 1 hour 
+watch out fail  FailSafeThrottleDuration
+
 8) backplane : w2 and n2 have no backplane
-set a value on w1 
-ask for value in w1, w2, n1, n2
-set new value in n1 .. 
-w1 will be ok .. w2 and n2 will have old value 
+set a value on w1  set-cache-entry-raw ( 1 min cache)
+ask for value in w2, n1, n2 get-cache-entry-raw
+set new value in w1 .. 
+w1 and n1 will be ok .. w2 and n2 will have old value 
