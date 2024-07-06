@@ -46,6 +46,8 @@ namespace fusionCacheApi.Controllers
         }
         private readonly string _portKey = "allPorts";
         private static readonly Random Random = new ();
+
+        //  3) this show calling mem cache many time on big payload .. compare with same method in distributed cache 
         [HttpGet(template: "get-big-cache-payload-redis", Name = "GetBigCachePayloadRedis")]
         public async Task<double> GetPortsRedis(int iterations, bool throwEx)
         {

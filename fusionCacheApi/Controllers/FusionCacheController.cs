@@ -16,10 +16,10 @@ namespace fusionCacheApi.Controllers;
     [Route("[controller]")]
     public class FusionCacheController : ControllerBase
     {
-     
-    
-       
-        private readonly IDataSources _dataSources;
+
+
+    private static readonly SemaphoreSlim _lock = new (1, 1);
+    private readonly IDataSources _dataSources;
         private readonly IFusionCacheWrapper _fusionCacheWrapper;
         private readonly IFusionCache _fusionCache;
         private const string CacheEntryTypeWithFailSafe = "CacheEntryTypeWithFailSafe";
@@ -46,39 +46,42 @@ namespace fusionCacheApi.Controllers;
         }
 
         [HttpGet(template: "set-cache-entry", Name = "SetCacheEntry")]
-        public async Task SetCacheEntry(string value)
+        public async Task SetCacheEntry(string key, string value)
         {
-            await _fusionCacheWrapper.SetAsync("cache-entry", value, CacheEntryTypeWithFailSafe);
+            await _fusionCacheWrapper.SetAsync(key, value, CacheEntryTypeNoFailSafe);
         }
 
+        // simple example . show how to call the wrapper , that gets cache entry from config 
         [HttpGet(template: "get-or-set-cache-entry", Name = "GetOrSetCacheEntry")]
-        public async Task<string> GetCacheEntry(string value)
+        public async Task<string> GetCacheEntry(string key, string value)
         {
             async Task<string> Factory(CancellationToken _)
             {
                 return await Task.FromResult(value);
             }
 
-            var ret = await _fusionCacheWrapper.GetOrSetAsync("cache-entry", Factory, CacheEntryTypeWithFailSafe);
+            var ret = await _fusionCacheWrapper.GetOrSetAsync(key, Factory, CacheEntryTypeNoFailSafe);
             return ret;
         }
-
+        // 4) just to show the simplest way to call GetOrSetAsync  
         [HttpGet(template: "get-or-set-cache-entry-raw", Name = "GetOrSetCacheEntryRaw")]
-        public async Task<string> GetCacheEntryRaw(string value)
+        public async Task<string> GetCacheEntryRaw(string key, string value)
         {
-            var ret = await _fusionCache.GetOrSetAsync("cache-entry", async _ => await Task.FromResult(value),new FusionCacheEntryOptions
+            var ret = await _fusionCache.GetOrSetAsync(key, async _ => await Task.FromResult(value),new FusionCacheEntryOptions
             {
                 Duration= TimeSpan.FromMinutes(1)   
             });
             return ret;
         }
-
+        // 5) to show error when factory takes longer then FactoryHardTimeout
+        // also show that factory is executed in background thread
+        // call this with value of 18 .. so it will fail (timeout 15) ..but calling next time will give result (immediately)
         [HttpGet(template: "get-or-set-cache-entry-raw-hard-timeout", Name = "GetOrSetCacheEntryRawHardTimeOut")]
-        public async Task<string> GetOrSetCacheEntryRawTimeOut(string value, int factorySleepInSeconds)
+        public async Task<string> GetOrSetCacheEntryRawTimeOut(string key ,string value, int factorySleepInSeconds)
         {
-            var ret = await _fusionCache.GetOrSetAsync("get-or-set-cache-entry-raw-timeout-no-fail-safe",
+            var ret = await _fusionCache.GetOrSetAsync(key,
                 async _ => {
-                    await Task.Delay(factorySleepInSeconds * 1000);
+                    await Task.Delay(factorySleepInSeconds * 1000, _);
                     return await Task.FromResult(value);
                 }, new FusionCacheEntryOptions
                 {
@@ -118,30 +121,28 @@ namespace fusionCacheApi.Controllers;
                 });
             return ret;
         }
-
+    // 
     [HttpGet(template: "get-or-set-cache-entry-raw-fails-safe", Name = "GetOrSetCacheEntryRawFailSafe")]
-    public async Task<string> GetOrSetCacheEntryRawFailSafe(string value, bool throwEx, int factorySleepInSeconds)
+    public async Task<string> GetOrSetCacheEntryRawFailSafe(string key, string value, bool throwEx)
     {
-        // 1) call with factorySleepInSeconds > FactoryHardTimeout = 10 (15) .. it will return exception
-        // 2) call again after more 5 sec .. factory has finished ... you will get the value you requested 
-        // 3) lets wait expiration of entry (15 secs) then call with factorySleepInSeconds = 1 , throw ex = true .. with different value ..
+        // 7 fail safe 
+        // call with throw ex = false 
+        // call with throwEx true after 5 seconds 
         // you will get the old value (Fail safe)
         // you will see exception in the logs
-        // 4) let wait expiration of entry (15 secs) factorySleepInSeconds =1 , throw ex = false .. with different value ..
+        // call with throw ex = false .. with different value ..
         // you will get the new value 
-        // when FailSafeMaxDuration expires .. you are back to point 1 
-        var ret = await _fusionCache.GetOrSetAsync("get-or-set-cache-entry-raw-fails-safe",
+        var ret = await _fusionCache.GetOrSetAsync(key,
                         async _ => {
                             if (throwEx)
                             {
                                 throw new Exception("Exception");
                             }
-                            await Task.Delay(factorySleepInSeconds * 1000);
                             return await Task.FromResult(value);
                         }
                         , new FusionCacheEntryOptions
                          {
-                    Duration = TimeSpan.FromSeconds(15),
+                    Duration = TimeSpan.FromSeconds(5),
                     IsFailSafeEnabled = true,
                     FailSafeMaxDuration = TimeSpan.FromHours(1)
                     //FailSafeThrottleDuration
@@ -153,7 +154,7 @@ namespace fusionCacheApi.Controllers;
         return ret;
     }
 
-
+           
     [HttpGet(template: "get-or-set-cache-entry-with-adaptive-cache", Name = "GetOrSetCacheEntryWithAdaptiveCache")]
         public async Task<string> GetOrSetCacheEntryWithAdaptiveCache(string value, int? durationInSeconds)
         {
@@ -169,7 +170,8 @@ namespace fusionCacheApi.Controllers;
             var ret = await _fusionCacheWrapper.GetOrSetAdaptiveCacheAsync<string>("cache-entry-adaptive-cache", Factory, CacheEntryTypeNoFailSafe);
             return ret;
         }
-        private static readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
+        
+    // 6) how FC prevent cache stampede 
         [HttpGet(template: "cache-stampede", Name = "CacheStampedeFusion")]
         public async Task<string> CacheStampede(int sleepInSeconds)
         {

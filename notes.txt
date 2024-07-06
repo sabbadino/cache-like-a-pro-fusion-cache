@@ -1,0 +1,22 @@
+NOTE : 
+open ado , go to build / deploy def 
+opne redis browser
+provision web apps up-webapps.bicep  
+provision redis up-redis.bicep
+copy redis cn in build definition 
+deploy 
+
+demo : 
+1) cache stampede -> in memory .. show counter .. use cache-stampede.ps1 .. then call show counter
+2) big payload -> in memory , vs distributed (show cpu / resouurces in redis going up ) 
+, show data in redis browser
+3) simple FC get or create 
+4) FC with wrapper get or create . using FusionCacheEntryOptions settings from configuration 
+5) factory timeout with background continuation
+6) cache stampede -> in memory .. show counter .. use cache-stampede.ps1 CHANGE URL .. then call show counter
+7) fail safe
+8) backplane : w2 and n2 have no backplane
+set a value on w1 
+ask for value in w1, w2, n1, n2
+set new value in n1 .. 
+w1 will be ok .. w2 and n2 will have old value 

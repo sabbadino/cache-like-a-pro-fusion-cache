@@ -17,17 +17,16 @@ namespace fusionCacheApi.Controllers
     {
      
     
-       
+        private readonly string _portKey = "allPorts";
+        private static readonly Random Random = new   ();
         private readonly IDataSources _dataSources;
         private readonly IMemoryCache _memoryCache;
-        private readonly ILogger _logger;
 
         public InMemoryCacheController(IDataSources dataSources, IMemoryCache memoryCache,ILogger<InMemoryCacheController> logger)
         {
             _dataSources = dataSources;
             _memoryCache = memoryCache;
-            _logger = logger;
-            _logger.LogInformation("enter");
+            logger.LogInformation("enter");
         }
 
       
@@ -47,16 +46,15 @@ namespace fusionCacheApi.Controllers
             });
             return ret;
         }
-        private readonly string _portKey = "allPorts";
-        private static readonly Random _random = new Random();
-
+        
+        // 2)  this show calling mem cache many time on big payload .. compare with same method in distributed cache 
         [HttpGet(template: "get-big-cache-payload-in-memory", Name = "GetBigCachePayloadInMemory")]
         public async Task<double> GetBigCachePayloadInMemory(int iterations, bool throwEx)
         {
             var dt = DateTime.Now;
             for (int i = 0; i < iterations; i++)
             {
-                var portStartsWith = Convert.ToChar(_random.Next(15, 23)).ToString();
+                var portStartsWith = Convert.ToChar(Random.Next(15, 23)).ToString();
                 var ret = await _memoryCache.GetOrCreateAsync(_portKey, async cacheEntry =>
                 {
                     if (throwEx)
@@ -71,6 +69,8 @@ namespace fusionCacheApi.Controllers
             return (DateTime.Now- dt).TotalSeconds;
         }
 
+
+
         [HttpGet(template: "reset-in-memory-factory-counter", Name = "ResetInMemoryFactoryCounter")]
         public void ResetFactoryCounter()
         {
@@ -84,7 +84,7 @@ namespace fusionCacheApi.Controllers
         }
 
         private static readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
-        
+        // 1) this is to show that in-memory cache does not protect from cache stampede
         [HttpGet(template: "cache-stampede", Name = "CacheStampede")]
         public async Task<CacheStampedeResponse> CacheStampede(int sleepInSeconds)
         {
