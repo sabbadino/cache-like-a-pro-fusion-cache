@@ -10,8 +10,12 @@ deploy
 
 demo : 
 1) cache stampede -> in memory .. show counter .. use cache-stampede.ps1 .. then call show counter
-2) big payload -> in memory , vs distributed (show cpu / resouurces in redis going up ) 
+2) use 50000 , distributed is remote : serialization, network : big payload -> 
+in memory , vs distributed (show cpu on ap plan / resouurces in redis going up (server LOAD) ) 
 , show data in redis browser
+
+SHOW DIFFERNCES IN TIME compared ot in memory 
+
 3) simple FC get or create 
 4) FC with wrapper get or create . using FusionCacheEntryOptions settings from configuration 
 5) factory timeout with background continuation

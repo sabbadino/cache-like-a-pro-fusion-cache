@@ -52,20 +52,24 @@ namespace fusionCacheApi.Controllers
         public async Task<double> GetBigCachePayloadInMemory(int iterations, bool throwEx)
         {
             var dt = DateTime.Now;
-            for (int i = 0; i < iterations; i++)
+            ParallelOptions parallelOptions = new()
             {
-                var portStartsWith = Convert.ToChar(Random.Next(15, 23)).ToString();
-                var ret = await _memoryCache.GetOrCreateAsync(_portKey, async cacheEntry =>
+                MaxDegreeOfParallelism = 10
+            };
+            await Parallel.ForEachAsync(new int[iterations], parallelOptions, async (iteration, token) =>
                 {
-                    if (throwEx)
+                    var portStartsWith = Convert.ToChar(Random.Next(15, 23)).ToString();
+                    var ret = await _memoryCache.GetOrCreateAsync(_portKey, async cacheEntry =>
                     {
-                        throw new Exception("forced exception");
-                    }
-                    cacheEntry.AbsoluteExpiration = DateTimeOffset.UtcNow + TimeSpan.FromMinutes(1);
-                    return await _dataSources.GetPorts(throwEx);
+                        if (throwEx)
+                        {
+                            throw new Exception("forced exception");
+                        }
+                        cacheEntry.AbsoluteExpiration = DateTimeOffset.UtcNow + TimeSpan.FromMinutes(1);
+                        return await _dataSources.GetPorts(throwEx);
+                    });
+                    _ = (ret ?? []).Where(p => p.LongDisplayName.StartsWith(portStartsWith, StringComparison.OrdinalIgnoreCase)).ToList();
                 });
-                _ = (ret ?? []).Where(p => p.LongDisplayName.StartsWith(portStartsWith, StringComparison.OrdinalIgnoreCase)).ToList();
-            }
             return (DateTime.Now- dt).TotalSeconds;
         }
 
