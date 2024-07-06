@@ -144,9 +144,8 @@ namespace fusionCacheApi.Controllers;
                          {
                     Duration = TimeSpan.FromSeconds(5),
                     IsFailSafeEnabled = true,
-                    FailSafeMaxDuration = TimeSpan.FromHours(1)
-                    //FailSafeThrottleDuration
-                    ,
+                    FailSafeMaxDuration = TimeSpan.FromHours(1),
+                    FailSafeThrottleDuration= TimeSpan.FromSeconds(1),
                     FactoryHardTimeout = TimeSpan.FromSeconds(10)
                     ,
                     FactorySoftTimeout = TimeSpan.FromSeconds(5),

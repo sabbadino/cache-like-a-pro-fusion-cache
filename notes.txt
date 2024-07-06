@@ -1,17 +1,28 @@
 NOTE : 
 open portal using msc.com 
-open portal using red.msc.com (redis usage)
-open ado , go to build / deploy def 
-open redis browser
+
 provision web apps up-webapps.bicep  
 provision redis up-redis.bicep
-copy redis cn in build definition 
+open ado , go to build / deploy def 
 deploy 
+
+open app plan west cpu percentage
+open web app west 1 cpu time 
+open page in browser for each web app 
+open portal using red.msc.com (redis usage)
+open redis browser
+
+
 
 demo : 
 1) cache stampede -> in memory .. show counter .. use cache-stampede.ps1 .. then call show counter
-2) use 50000 , distributed is remote : serialization, network : big payload -> 
-in memory , vs distributed (show cpu on ap plan / resouurces in redis going up (server LOAD) ) 
+2) show what method does ,  
+mention distributed is remote : serialization, network : big payload -> use 10000 ,
+run in memory in memory , 
+then run distributed .. 
+show the difference in time 
+distributed consume resources : show app plan cpu percentage / web app cpu time / resouurces in redis going up (server LOAD) 
+it takes time to get telemetry .. thre is a delay 
 , show data in redis browser
 
 SHOW DIFFERNCES IN TIME compared ot in memory 
