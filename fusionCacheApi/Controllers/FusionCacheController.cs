@@ -50,9 +50,17 @@ namespace fusionCacheApi.Controllers;
         {
             await _fusionCacheWrapper.SetAsync(key, value, CacheEntryTypeNoFailSafe);
         }
-
-        // simple example . show how to call the wrapper , that gets cache entry from config 
-        [HttpGet(template: "get-or-set-cache-entry", Name = "GetOrSetCacheEntry")]
+        [HttpGet(template: "set-cache-entry-raw", Name = "SetCacheEntryRaw")]
+        public async Task SetCacheEntryRaw(string key, string value)
+        {
+        await _fusionCache.SetAsync(key, value, new FusionCacheEntryOptions
+        {
+            Duration = TimeSpan.FromMinutes(1)
+        });
+        
+    }
+    // simple example . show how to call the wrapper , that gets cache entry from config 
+    [HttpGet(template: "get-or-set-cache-entry", Name = "GetOrSetCacheEntry")]
         public async Task<string> GetCacheEntry(string key, string value)
         {
             async Task<string> Factory(CancellationToken _)
