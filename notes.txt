@@ -1,6 +1,8 @@
 NOTE : 
+open portal using msc.com 
+open portal using red.msc.com (redis usage)
 open ado , go to build / deploy def 
-opne redis browser
+open redis browser
 provision web apps up-webapps.bicep  
 provision redis up-redis.bicep
 copy redis cn in build definition 

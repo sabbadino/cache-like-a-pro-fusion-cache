@@ -52,7 +52,11 @@ namespace fusionCacheApi.Controllers
         public async Task<double> GetPortsRedis(int iterations, bool throwEx)
         {
             var dt = DateTime.Now;
-            for (int i = 0; i < iterations; i++)
+            ParallelOptions parallelOptions = new()
+            {
+                MaxDegreeOfParallelism =10
+            };
+            await Parallel.ForEachAsync(new int[iterations], parallelOptions, async (iteration,token)  =>
             {
                 List<PortDetails>? ports ;
                 var str = await _distributedCache.GetStringAsync(_portKey);
@@ -72,7 +76,7 @@ namespace fusionCacheApi.Controllers
                 var portStartsWith = Convert.ToChar(Random.Next(15, 23)).ToString();
                 
                 _ = (ports ?? []).Where(p => p.LongDisplayName.StartsWith(portStartsWith, StringComparison.OrdinalIgnoreCase)).ToList();
-            }
+            });
             return (DateTime.Now - dt).TotalSeconds;
         }
       

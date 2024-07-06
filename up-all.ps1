@@ -5,5 +5,5 @@ az account set --subscription "Azure DevTest Academy"
 # az deployment group what-if --resource-group "poc-fusion-cache" --template-file "up-webapps.bicep"
 # az deployment group what-if --resource-group "poc-fusion-cache" --template-file "up-redis.bicep"
 az deployment group create --resource-group "poc-fusion-cache" --template-file "up-webapps.bicep"
-az deployment group create --resource-group "poc-fusion-cache" --template-file "up-redis.bicep"
+#az deployment group create --resource-group "poc-fusion-cache" --template-file "up-redis.bicep"
 

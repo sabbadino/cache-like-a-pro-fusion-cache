@@ -1,4 +1,4 @@
-param sku string = 'B1' 
+param sku string = 'B3' 
 param locationwest string = 'eastus' 
 param locationnorth string = 'northeurope' 
 var appServicePlanNameWest = 'fusion-cache-api-west-app-plan'
