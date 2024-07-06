@@ -73,18 +73,31 @@ namespace fusionCacheApi.Controllers;
         }
         // 4) just to show the simplest way to call GetOrSetAsync  
         [HttpGet(template: "get-or-set-cache-entry-raw", Name = "GetOrSetCacheEntryRaw")]
-        public async Task<string> GetCacheEntryRaw(string key, string value)
+        public async Task<string> GetOrSetCacheEntryRaw(string key, string value)
         {
             var ret = await _fusionCache.GetOrSetAsync(key, async _ => await Task.FromResult(value),new FusionCacheEntryOptions
             {
-                Duration= TimeSpan.FromMinutes(1)   
+                Duration= TimeSpan.FromSeconds(1)   
             });
             return ret;
         }
-        // 5) to show error when factory takes longer then FactoryHardTimeout
-        // also show that factory is executed in background thread
-        // call this with value of 18 .. so it will fail (timeout 15) ..but calling next time will give result (immediately)
-        [HttpGet(template: "get-or-set-cache-entry-raw-hard-timeout", Name = "GetOrSetCacheEntryRawHardTimeOut")]
+
+    [HttpGet(template: "get-cache-entry-raw", Name = "GetCacheEntryRaw")]
+    public string? GetCacheEntryRaw(string key)
+    {
+        var ret = _fusionCache.TryGet<string>(key);
+        if (ret.HasValue)
+        {
+            return ret.Value;
+        }
+        return null;
+    }
+
+
+    // 5) to show error when factory takes longer then FactoryHardTimeout
+    // also show that factory is executed in background thread
+    // call this with value of 18 .. so it will fail (timeout 15) ..but calling next time will give result (immediately)
+    [HttpGet(template: "get-or-set-cache-entry-raw-hard-timeout", Name = "GetOrSetCacheEntryRawHardTimeOut")]
         public async Task<string> GetOrSetCacheEntryRawTimeOut(string key ,string value, int factorySleepInSeconds)
         {
             var ret = await _fusionCache.GetOrSetAsync(key,
