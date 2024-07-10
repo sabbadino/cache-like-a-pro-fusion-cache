@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json;
 using fusionCacheUtils;
 using ZiggyCreatures.Caching.Fusion;
+using System.Globalization;
 
 namespace fusionCacheApi.Controllers;
 
@@ -174,20 +175,26 @@ namespace fusionCacheApi.Controllers;
         return ret;
     }
 
-           
+           // default duration is one hour, but factory cn override it 
+           // according to the data it gets from the origin the factory 
+           // can decide to specify a specif cache entry setting
     [HttpGet(template: "get-or-set-cache-entry-with-adaptive-cache", Name = "GetOrSetCacheEntryWithAdaptiveCache")]
-        public async Task<string> GetOrSetCacheEntryWithAdaptiveCache(string value, int? durationInSeconds)
+        public async Task<string> GetOrSetCacheEntryWithAdaptiveCache(string key)
         {
-            async Task<string> Factory(FusionCacheFactoryExecutionContext<string> ctx, CancellationToken _)
-            {
-                if (durationInSeconds != null)
-                {
-                    ctx.Options.Duration = TimeSpan.FromSeconds(durationInSeconds.Value);
-                }
-                return await Task.FromResult(value) ;
-            }
+          
 
-            var ret = await _fusionCacheWrapper.GetOrSetAdaptiveCacheAsync<string>("cache-entry-adaptive-cache", Factory, CacheEntryTypeNoFailSafe);
+            var ret = await _fusionCache.GetOrSetAsync<string>(
+                key, async (ctx,_) => {
+                    var rndValue = new Random().NextDouble();
+                    if (rndValue> 0.8)
+                    {
+                        ctx.Options.Duration = TimeSpan.FromMinutes(1);
+                    }
+                    return await Task.FromResult(rndValue.ToString(CultureInfo.InvariantCulture));    
+            } ,new FusionCacheEntryOptions
+            {
+                Duration = TimeSpan.FromHours(1)
+            });
             return ret;
         }
         
