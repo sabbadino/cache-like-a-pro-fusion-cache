@@ -1,6 +1,0 @@
-@fusionCacheApi_HostAddress = http://localhost:5264
-
-GET {{fusionCacheApi_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

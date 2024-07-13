@@ -29,27 +29,9 @@ namespace fusionCacheApi.Controllers
             logger.LogInformation("enter");
         }
 
-      
-
-        [HttpGet(template: "current-time-in-memory", Name = "GetCurrentTimeInMemory")]
-        public async Task<string> GetCurrentTimeInMemory(string location, bool throwEx)
-        {
-
-            var ret = await _memoryCache.GetOrCreateAsync(location, async cacheEntry=>
-            {
-                if (throwEx)
-                {
-                    throw new Exception("forced exception");
-                }
-                cacheEntry.AbsoluteExpiration = DateTimeOffset.UtcNow + TimeSpan.FromMinutes(1);
-                return await _dataSources.GetCurrentTime(location, throwEx);
-            });
-            return ret;
-        }
-        
         // 2)  this show calling mem cache many time on big payload .. compare with same method in distributed cache 
         [HttpGet(template: "get-big-cache-payload-in-memory", Name = "GetBigCachePayloadInMemory")]
-        public async Task<double> GetBigCachePayloadInMemory(int iterations, bool throwEx)
+        public async Task<double> GetBigCachePayloadInMemory(int iterations)
         {
             var dt = DateTime.Now;
             ParallelOptions parallelOptions = new()
@@ -61,12 +43,8 @@ namespace fusionCacheApi.Controllers
                     var portStartsWith = Convert.ToChar(Random.Next(15, 23)).ToString();
                     var ret = await _memoryCache.GetOrCreateAsync(_portKey, async cacheEntry =>
                     {
-                        if (throwEx)
-                        {
-                            throw new Exception("forced exception");
-                        }
                         cacheEntry.AbsoluteExpiration = DateTimeOffset.UtcNow + TimeSpan.FromMinutes(1);
-                        return await _dataSources.GetPorts(throwEx);
+                        return await _dataSources.GetPorts();
                     });
                     _ = (ret ?? []).Where(p => p.LongDisplayName.StartsWith(portStartsWith, StringComparison.OrdinalIgnoreCase)).ToList();
                 });
@@ -89,7 +67,7 @@ namespace fusionCacheApi.Controllers
 
         private static readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
         // 1) this is to show that in-memory cache does not protect from cache stampede
-        [HttpGet(template: "cache-stampede", Name = "CacheStampede")]
+        [HttpGet(template: "cache-stampede-in-memory", Name = "CacheStampedeInMemory")]
         public async Task<CacheStampedeResponse> CacheStampede(int sleepInSeconds)
         {
             var ret = await _memoryCache.GetOrCreateAsync("no-cache-stampede", async cacheEntry => {

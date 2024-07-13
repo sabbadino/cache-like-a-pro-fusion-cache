@@ -6,9 +6,7 @@ namespace fusionCacheUtils
     {
         // just for demo purposes
         public bool RegisterRedisDistributedExplicitly { get; init; } = true;
-        // just for demo purposes
-        public bool RegisterInMemoryExplicitly { get; init; } = true;
-
+        
         public bool EnableBackPlane { get; set; } 
         public FusionCacheEntryOptions DefaultFusionCacheEntryOptions { get; init; } = new();
 

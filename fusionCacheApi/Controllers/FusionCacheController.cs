@@ -23,7 +23,6 @@ namespace fusionCacheApi.Controllers;
     private readonly IDataSources _dataSources;
         private readonly IFusionCacheWrapper _fusionCacheWrapper;
         private readonly IFusionCache _fusionCache;
-        private const string CacheEntryTypeWithFailSafe = "CacheEntryTypeWithFailSafe";
         private const string CacheEntryTypeNoFailSafe = "CacheEntryTypeNoFailSafe";
         private const string CacheEntryTypeStampede = "CacheEntryTypeStampede";
 
@@ -34,23 +33,7 @@ namespace fusionCacheApi.Controllers;
             _fusionCache = fusionCache;
         }
 
-        [HttpGet(template: "current-time-fail-safe", Name = "GetCurrentTimeFailSafe")]
-        public async Task<string> GetCurrentTimeFailSafe(string location, bool throwEx)
-        {
-            async Task<string> Factory(CancellationToken _)
-            {
-                return await _dataSources.GetCurrentTime(location, throwEx);
-            }
-
-            var ret = await _fusionCacheWrapper.GetOrSetAsync(location, Factory, CacheEntryTypeWithFailSafe);
-            return ret;  
-        }
-
-        [HttpGet(template: "set-cache-entry", Name = "SetCacheEntry")]
-        public async Task SetCacheEntry(string key, string value)
-        {
-            await _fusionCacheWrapper.SetAsync(key, value, CacheEntryTypeNoFailSafe);
-        }
+       
         [HttpGet(template: "set-cache-entry-raw", Name = "SetCacheEntryRaw")]
         public async Task SetCacheEntryRaw(string key, string value)
         {
@@ -61,15 +44,12 @@ namespace fusionCacheApi.Controllers;
         
     }
     // simple example . show how to call the wrapper , that gets cache entry from config 
-    [HttpGet(template: "get-or-set-cache-entry", Name = "GetOrSetCacheEntry")]
+    [HttpGet(template: "get-or-set-cache-entry-with-wrapper", Name = "GetOrSetCacheEntryWithWrapper")]
         public async Task<string> GetCacheEntry(string key, string value)
         {
-            async Task<string> Factory(CancellationToken _)
-            {
+            var ret = await _fusionCacheWrapper.GetOrSetAsync(key, async _ => {
                 return await Task.FromResult(value);
-            }
-
-            var ret = await _fusionCacheWrapper.GetOrSetAsync(key, Factory, CacheEntryTypeNoFailSafe);
+            }, CacheEntryTypeNoFailSafe);
             return ret;
         }
         // 4) just to show the simplest way to call GetOrSetAsync  
@@ -133,7 +113,8 @@ namespace fusionCacheApi.Controllers;
                     await Task.Delay(factorySleepInSeconds * 1000);
                     return await Task.FromResult(value);
                 },
-                "theDefaultValue" /* this default value applies only when fail-safe is enabled */ , new FusionCacheEntryOptions
+                "theDefaultValue" /* this default value applies only when fail-safe is enabled */ 
+                , new FusionCacheEntryOptions
             {
                 Duration = TimeSpan.FromSeconds(15), IsFailSafeEnabled=true
                 , FailSafeMaxDuration=TimeSpan.FromHours(1) 
@@ -199,16 +180,16 @@ namespace fusionCacheApi.Controllers;
         }
         
     // 6) how FC prevent cache stampede 
-        [HttpGet(template: "cache-stampede", Name = "CacheStampedeFusion")]
+        [HttpGet(template: "cache-stampede-with-wrapper", Name = "CacheStampedeFusionWithWrapper")]
         public async Task<string> CacheStampede(int sleepInSeconds)
         {
             async Task<string> Factory(CancellationToken _)
             {
-                await _lock.WaitAsync();
+                await _lock.WaitAsync(_);
                 Counter.Count = Interlocked.Increment(ref Counter.Count);
                 Console.WriteLine($"Entered in fusion cache factory  {Counter.Count} times ");
                 _lock.Release();
-                await Task.Delay(sleepInSeconds * 1000);
+                await Task.Delay(sleepInSeconds * 1000,_);
                 return await Task.FromResult(Guid.NewGuid().ToString());
             }
 

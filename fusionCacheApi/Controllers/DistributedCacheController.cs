@@ -26,30 +26,13 @@ namespace fusionCacheApi.Controllers
             _dataSources = dataSources;
             _distributedCache = distributedCache;
         }
-
-      
-
-        [HttpGet(template: "current-time-redis", Name = "GetCurrentTimeRedis")]
-        public async Task<string> GetCurrentTimeRedis(string location, bool throwEx)
-        {
-            var ret = await _distributedCache.GetStringAsync(location);
-            if(ret == null)
-            {
-                if (throwEx)
-                {
-                    throw new Exception("forced exception");
-                }
-                ret = await _dataSources.GetCurrentTime(location, throwEx);
-                await _distributedCache.SetStringAsync(location, ret, new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1)});
-            }
-            return ret;
-        }
         private readonly string _portKey = "allPorts";
-        private static readonly Random Random = new ();
+        private static readonly Random Random = new();
+     
 
         //  3) this show calling mem cache many time on big payload .. compare with same method in distributed cache 
         [HttpGet(template: "get-big-cache-payload-redis", Name = "GetBigCachePayloadRedis")]
-        public async Task<double> GetPortsRedis(int iterations, bool throwEx)
+        public async Task<double> GetPortsRedis(int iterations)
         {
             var dt = DateTime.Now;
             ParallelOptions parallelOptions = new()
@@ -62,12 +45,8 @@ namespace fusionCacheApi.Controllers
                 var str = await _distributedCache.GetStringAsync(_portKey);
                 if (str == null)
                 {
-                    if (throwEx)
-                    {
-                        throw new Exception("forced exception");
-                    }
-                    ports = await _dataSources.GetPorts(throwEx);
-                    await _distributedCache.SetStringAsync(_portKey, JsonSerializer.Serialize(ports), new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1) });
+                    ports = await _dataSources.GetPorts();
+                    await _distributedCache.SetStringAsync(_portKey, JsonSerializer.Serialize(ports), new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1) },token);
                 }
                 else
                 {

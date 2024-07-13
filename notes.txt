@@ -25,10 +25,20 @@ it takes time to get telemetry .. thre is a delay
 
 SHOW DIFFERNCES IN TIME compared ot in memory 
 
-2) can skip simple FC get or create : get-or-set-cache-entry-raw
-3) FC with wrapper get or create . using FusionCacheEntryOptions settings from configuration : /get-or-set-cache-entr
-4) factory timeout with background continuation
-5) cache stampede -> in memory .. show counter .. use cache-stampede.ps1 CHANGE URL .. then call show counter
+2) can skip this: simple FC get or create : get-or-set-cache-entry-raw
+
+3) factory timeout with background continuation : 
+/get-or-set-cache-entry-raw-hard-timeout
+
+4) FC with wrapper get or create . using FusionCacheEntryOptions settings from configuration : 
+/get-or-set-cache-entry-with-wrapper
+
+
+5) cache stampede -> 
+in memory : cache-stampede-in-memory 
+.. show counter .. use cache-stampede.ps1 CHANGE URL .. then call show counter
+FusionCache : cache-stampede-with-wrapper
+
 
 7) fail safe : GetOrSetCacheEntryRawFailSafe
 show duration is 5 seconds

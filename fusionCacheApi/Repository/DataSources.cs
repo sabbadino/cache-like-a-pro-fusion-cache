@@ -6,7 +6,7 @@ namespace fusionCacheApi.Repository
     {
         Task<string> GetCurrentTime(string location, bool throwEx);
 
-        Task<List<PortDetails>?> GetPorts(bool throwEx);
+        Task<List<PortDetails>?> GetPorts();
     }
     public class DataSources : IDataSources
     {
@@ -19,7 +19,7 @@ namespace fusionCacheApi.Repository
             return await Task.FromResult(DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss-fff"));
         }
 
-        public Task<List<PortDetails>?> GetPorts(bool throwEx)
+        public Task<List<PortDetails>?> GetPorts()
         {
             return Task.FromResult(JsonSerializer.Deserialize<List<PortDetails>>(File.ReadAllText($".{Path.DirectorySeparatorChar}Repository{Path.DirectorySeparatorChar}ports.json")));
         }
