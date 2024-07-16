@@ -5,7 +5,14 @@ VisualStudioVersion = 17.9.34622.214
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "fusionCacheApi", "fusionCacheApi\fusionCacheApi.csproj", "{681287C1-C8EF-46CF-B638-1B42CD64901F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusionCacheUtils", "fusionCacheUtils\fusionCacheUtils.csproj", "{40DF9198-884C-4188-BFBA-67EB6FDCF32B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "fusionCacheUtils", "fusionCacheUtils\fusionCacheUtils.csproj", "{40DF9198-884C-4188-BFBA-67EB6FDCF32B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "documents", "documents", "{C69F11EB-6BCB-41E9-BA13-C86810815DF8}"
+	ProjectSection(SolutionItems) = preProject
+		cache-like-a-pro.pptx = cache-like-a-pro.pptx
+		intro.txt = intro.txt
+		notes.txt = notes.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

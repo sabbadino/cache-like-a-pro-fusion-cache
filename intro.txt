@@ -1,12 +1,14 @@
 fusioncache intro
 
-Come è scritto nell abstract di questa sessione, il caching è spesso trattato come un dio minore 
+Come è scritto nell abstract di questa sessione, il caching è spesso trattato
+come un dio minore 
 nel mondo delle applicazioni distribuite. 
-E spesso introdotto in una seconda faee, solo quando ci si trova davanti a problemi di performance.
+E spesso introdotto in una seconda faee, solo quando ci si trova davanti a problemi 
+di performance.
 
 In questa sessione ho cercato di rendere un po' di giustizia a questa "tecnica", 
 raccogliendo al meglio 
-1) le informazioni più rilvanti  
+1) le informazioni più rilevanti  
 2) i patterns piu di diffusi 
 3) le insidie più grandi a riguardo delle tecniche di caching.
 

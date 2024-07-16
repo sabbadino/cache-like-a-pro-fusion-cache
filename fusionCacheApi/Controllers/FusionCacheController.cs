@@ -39,7 +39,7 @@ namespace fusionCacheApi.Controllers;
         {
         await _fusionCache.SetAsync(key, value, new FusionCacheEntryOptions
         {
-            Duration = TimeSpan.FromMinutes(1)
+            Duration = TimeSpan.FromMinutes(2)
         });
         
     }

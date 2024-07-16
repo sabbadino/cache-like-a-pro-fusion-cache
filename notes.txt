@@ -1,5 +1,5 @@
 NOTE : 
-open portal using msc.com 
+open azure portal using msc.com account 
 
 provision web apps up-webapps.bicep  
 provision redis up-redis.bicep
@@ -29,25 +29,29 @@ SHOW DIFFERNCES IN TIME compared ot in memory
 
 3) factory timeout with background continuation : 
 /get-or-set-cache-entry-raw-hard-timeout
+call this with value of 18 .. so it will fail (timeout 15) ..
+but calling next time will give result (immediately)
 
 4) FC with wrapper get or create . using FusionCacheEntryOptions settings from configuration : 
 /get-or-set-cache-entry-with-wrapper
 
 
 5) cache stampede -> 
-in memory : cache-stampede-in-memory 
-.. show counter .. use cache-stampede.ps1 CHANGE URL .. then call show counter
-FusionCache : cache-stampede-with-wrapper
+in memory : cache-stampede-in-memory.ps1
+.. show counter .. 
 
+FusionCache : cache-stampede-fusion-cache.ps1
+.. show counter .. 
 
-7) fail safe : GetOrSetCacheEntryRawFailSafe
+7) fail safe : get-or-set-cache-entry-raw-fails-safe
 show duration is 5 seconds
 fail safe 1 hour 
 entry in redis is 1 hour 
-watch out fail  FailSafeThrottleDuration
+watch out value for FailSafeThrottleDuration
 
 8) backplane : w2 and n2 have no backplane
-set a value on w1  set-cache-entry-raw ( 1 min cache)
+set a value on w1  set-cache-entry-raw 
+ 2 min cache : be fast 
 ask for value in w2, n1, n2 get-cache-entry-raw
 set new value in w1 .. 
 w1 and n1 will be ok .. w2 and n2 will have old value 
